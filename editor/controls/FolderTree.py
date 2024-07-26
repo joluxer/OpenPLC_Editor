@@ -118,7 +118,7 @@ class FolderTree(wx.Panel):
             for c in range(ord('a'), ord('z')):
                 drive = os.path.join("%s:\\" % chr(c))
                 if os.path.exists(drive):
-                    items.append((drive, DRIVE, self._GetFolderChildren(drive, False)))
+                    items.append((drive, DRIVE, len(self._GetFolderChildren(drive, False))))
         else:
             try:
                 files = os.listdir(folderpath)
