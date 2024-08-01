@@ -22,6 +22,9 @@ unsigned long last_run = 0;
 #include "arduino_libs.h"
 
 #ifdef USE_ARDUINO_SKETCH
+    __attribute__((weak)) void sketch_setup();
+    __attribute__((weak)) void sketch_cycle_loop();
+    __attribute__((weak)) void sketch_loop();
     #include "ext/arduino_sketch.h"
 #endif
 
@@ -126,6 +129,7 @@ void setup()
     setupCycleDelay(common_ticktime__);
 
     #ifdef USE_ARDUINO_SKETCH
+    if (!!sketch_setup)
         sketch_setup();
     #endif
 }
@@ -303,7 +307,8 @@ void scheduler()
     plcCycleTask();
 
     #ifdef USE_ARDUINO_SKETCH
-        sketch_loop();
+    if (!!sketch_cycle_loop)
+        sketch_cycle_loop();
     #endif
 
     #ifdef MODBUS_ENABLED
@@ -323,6 +328,11 @@ void loop()
         //set timer for the next scan cycle
         last_run += scan_cycle; 
     }
+    
+    #ifdef USE_ARDUINO_SKETCH
+    if (!!sketch_loop)
+        sketch_loop();
+    #endif
     
     #ifdef MODBUS_ENABLED
     //Only run Modbus task again if we have at least 10ms gap until the next cycle
