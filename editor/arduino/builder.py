@@ -449,14 +449,18 @@ void updateTime()
         if (port != None):
             append_compiler_log(txtCtrl, '\nUploading program to Arduino board at ' + port + '...\n')
             if os_platform.system() == 'Windows':
-                append_compiler_log(txtCtrl, runCommand('editor\\arduino\\bin\\arduino-cli-w64 --no-color upload --port ' +
-                                            port + ' --fqbn ' + platform + ' editor\\arduino\\examples\\Baremetal/'))
+                compilation = subprocess.Popen(['editor\\arduino\\bin\\arduino-cli-w64', '--no-color', 'upload', '--port',
+                                                port, '--fqbn', platform, 'editor\\arduino\\examples\\Baremetal/'],
+                                                creationflags=0x08000000, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             elif os_platform.system() == 'Darwin':
-                append_compiler_log(txtCtrl, runCommand('editor/arduino/bin/arduino-cli-mac --no-color upload --port ' +
-                                            port + ' --fqbn ' + platform + ' editor/arduino/examples/Baremetal/ 2>&1'))
+                compilation = subprocess.Popen(['editor/arduino/bin/arduino-cli-mac', '--no-color', 'upload', '--port',
+                                                port, '--fqbn', platform, 'editor/arduino/examples/Baremetal/'],
+                                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             else:
-                append_compiler_log(txtCtrl, runCommand('editor/arduino/bin/arduino-cli-l64 --no-color upload --port ' +
-                                            port + ' --fqbn ' + platform + ' editor/arduino/examples/Baremetal/'))
+                compilation = subprocess.Popen(['editor/arduino/bin/arduino-cli-l64', '--no-color', 'upload', '--port',
+                                                port, '--fqbn', platform, 'editor/arduino/examples/Baremetal/'],
+                                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            return_code = read_output(compilation, txtCtrl)
             append_compiler_log(txtCtrl, '\nDone!\n')
         else:
             cwd = os.getcwd()
