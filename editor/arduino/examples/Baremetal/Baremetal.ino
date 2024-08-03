@@ -37,7 +37,7 @@ unsigned long last_run = 0;
 
 #ifdef USE_ARDUINO_SKETCH
     __attribute__((weak)) void sketch_setup();
-    __attribute__((weak)) void sketch_cycle_loop();
+    __attribute__((weak)) void sketch_cycle_task();
     __attribute__((weak)) void sketch_loop();
     #include "ext/arduino_sketch.h"
 #endif
@@ -341,7 +341,7 @@ void scheduler()
 
     #ifdef USE_ARDUINO_SKETCH
     if (!!sketch_cycle_loop)
-        sketch_cycle_loop();
+        sketch_cycle_task();
     #endif
 
     #ifdef MODBUS_ENABLED
@@ -352,21 +352,21 @@ void scheduler()
 void loop()
 {
     // ignore until next scan cycle (run lower priority tasks if time permits)
-    // always rely on the difference between now (aka micros() ) and the last_run, 
+    // always rely on the difference between now (aka micros() ) and the last_run,
     // which always is a positive integer number, even when micros() wraps around every 71 minutes.
     if ((micros() - last_run) >= scan_cycle)
     {
         scheduler();
-        
+
         //set timer for the next scan cycle
-        last_run += scan_cycle; 
+        last_run += scan_cycle;
     }
-    
+
     #ifdef USE_ARDUINO_SKETCH
     if (!!sketch_loop)
         sketch_loop();
     #endif
-    
+
     #ifdef MODBUS_ENABLED
     //Only run Modbus task again if we have at least 10ms gap until the next cycle
     if ((micros() - last_run) >= 10000)
