@@ -553,8 +553,8 @@ class Graphic_Element(ToolTipProducer):
 
     # Moves the element
     def Move(self, dx, dy, exclude=None):
-        self.Pos.x += max(-self.BoundingBox.x, dx)
-        self.Pos.y += max(-self.BoundingBox.y, dy)
+        self.Pos.x += int(round(max(-self.BoundingBox.x, dx)))
+        self.Pos.y += int(round(max(-self.BoundingBox.y, dy)))
         self.RefreshConnected(exclude)
         self.RefreshBoundingBox()
 
