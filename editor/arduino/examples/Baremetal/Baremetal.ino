@@ -21,6 +21,20 @@ unsigned long last_run = 0;
 
 #include "arduino_libs.h"
 
+//~ #ifdef ARDUINO_BOARD
+//~ #define BM_ARDUINO_BOARD_BAK ARDUINO_BOARD
+//~ #undef ARDUINO_BOARD
+//~ #endif
+
+//~ #include "Embedded_Template_Library.h"
+//~ #include "etl/algorithm.h"
+//~ #include "etl/array_view.h"
+
+//~ #ifdef BM_ARDUINO_BOARD_BAK
+//~ #define ARDUINO_BOARD BM_ARDUINO_BOARD_BAK
+//~ #undef BM_ARDUINO_BOARD_BAK
+//~ #endif
+
 #ifdef USE_ARDUINO_SKETCH
     __attribute__((weak)) void sketch_setup();
     __attribute__((weak)) void sketch_cycle_task();
@@ -138,12 +152,22 @@ void setup()
 void mapEmptyBuffers()
 {
     //Map all NULL I/O buffers to Modbus registers
+    unsigned countNulls = 0;
     for (int i = 0; i < MAX_DIGITAL_OUTPUT; i++)
     {
         if (bool_output[i/8][i%8] == NULL)
         {
-            bool_output[i/8][i%8] = (IEC_BOOL *)malloc(sizeof(IEC_BOOL));
+            ++countNulls;
+        }
+    }
+    IEC_BOOL *mbBuffer = calloc(countNulls, sizeof IEC_BOOL);
+    for (int i = 0; i < MAX_DIGITAL_OUTPUT; i++)
+    {
+        if (bool_output[i/8][i%8] == NULL)
+        {
+            bool_output[i/8][i%8] = mbBuffer;
             *bool_output[i/8][i%8] = 0;
+            ++mbBuffer;
         }
     }
     for (int i = 0; i < MAX_ANALOG_OUTPUT; i++)
@@ -153,12 +177,21 @@ void mapEmptyBuffers()
             int_output[i] = (IEC_UINT *)(modbus.holding + i);
         }
     }
+    countNulls = 0;
     for (int i = 0; i < MAX_DIGITAL_INPUT; i++)
     {
         if (bool_input[i/8][i%8] == NULL)
         {
-            bool_input[i/8][i%8] = (IEC_BOOL *)malloc(sizeof(IEC_BOOL));
+            ++countNulls;
+        }
+    }
+    for (int i = 0; i < MAX_DIGITAL_INPUT; i++)
+    {
+        if (bool_input[i/8][i%8] == NULL)
+        {
+            bool_input[i/8][i%8] = mbBuffer;
             *bool_input[i/8][i%8] = 0;
+            ++mbBuffer;
         }
     }
     for (int i = 0; i < MAX_ANALOG_INPUT; i++)
