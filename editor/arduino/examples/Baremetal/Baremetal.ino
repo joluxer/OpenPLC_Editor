@@ -340,7 +340,7 @@ void scheduler()
     plcCycleTask();
 
     #ifdef USE_ARDUINO_SKETCH
-    if (!!sketch_cycle_loop)
+    if (!!sketch_cycle_task)
         sketch_cycle_task();
     #endif
 
