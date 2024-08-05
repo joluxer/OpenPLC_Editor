@@ -160,7 +160,14 @@ void mapEmptyBuffers()
             ++countNulls;
         }
     }
-    IEC_BOOL *mbBuffer = calloc(countNulls, sizeof IEC_BOOL);
+    for (int i = 0; i < MAX_DIGITAL_INPUT; i++)
+    {
+        if (bool_input[i/8][i%8] == NULL)
+        {
+            ++countNulls;
+        }
+    }
+    IEC_BOOL *mbBuffer = (IEC_BOOL *)calloc(countNulls, sizeof(IEC_BOOL));
     for (int i = 0; i < MAX_DIGITAL_OUTPUT; i++)
     {
         if (bool_output[i/8][i%8] == NULL)
@@ -175,14 +182,6 @@ void mapEmptyBuffers()
         if (int_output[i] == NULL)
         {
             int_output[i] = (IEC_UINT *)(modbus.holding + i);
-        }
-    }
-    countNulls = 0;
-    for (int i = 0; i < MAX_DIGITAL_INPUT; i++)
-    {
-        if (bool_input[i/8][i%8] == NULL)
-        {
-            ++countNulls;
         }
     }
     for (int i = 0; i < MAX_DIGITAL_INPUT; i++)
